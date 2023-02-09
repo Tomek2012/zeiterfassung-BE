@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("/workingpackage")
-public class WorkingpackageResource {
+public class ProjectResource {
 
     private static final Logger LOG = Logger.getLogger(TimetrackingResource.class);
 

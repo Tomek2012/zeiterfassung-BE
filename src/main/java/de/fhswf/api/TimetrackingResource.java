@@ -5,6 +5,8 @@ import io.quarkus.security.Authenticated;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.DateFormat;
+
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -12,6 +14,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+
+import java.util.Date;
 import java.util.List;
 
 @Path("/time")
@@ -24,8 +28,10 @@ public class TimetrackingResource {
     JsonWebToken jwt;
 
     @GET
+    @Path("{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllTimerackings() {
+    public Response getAllTimetrackings(@QueryParam("date") String date) {
+        LOG.info(date);
         String test = jwt.getClaim(Claims.sub);
         List<Timetracking> times = Timetracking.list("userId", test);
         return Response.ok(times).build();
