@@ -10,11 +10,13 @@ public class Timetracking extends PanacheEntity {
 
     public String userId;
 
-    public Date fromTime;
+    public String fromTime;
 
-    public Date toTime;
+    public String toTime;
 
     public String workingpackage;
 
     public String description;
+
+    public Date timestamp;
 }

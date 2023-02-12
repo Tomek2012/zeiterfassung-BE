@@ -5,7 +5,6 @@ import io.quarkus.security.Authenticated;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.DateFormat;
 
 
 import javax.inject.Inject;
@@ -15,6 +14,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -30,10 +33,11 @@ public class TimetrackingResource {
     @GET
     @Path("{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllTimetrackings(@QueryParam("date") String date) {
-        LOG.info(date);
-        String test = jwt.getClaim(Claims.sub);
-        List<Timetracking> times = Timetracking.list("userId", test);
+    public Response getAllTimetrackings(@PathParam("date") String date) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        Date searchdate = formatter.parse(date);
+        String userId = jwt.getClaim(Claims.sub);
+        List<Timetracking> times = Timetracking.list("userId = ?1 and to_char(timestamp,'dd-MM-yyyy') = ?2", userId, date);
         return Response.ok(times).build();
     }
 
@@ -55,6 +59,7 @@ public class TimetrackingResource {
                     entity.toTime = timetracking.get(i).toTime;
                     entity.workingpackage = timetracking.get(i).workingpackage;
                     entity.description = timetracking.get(i).description;
+                    entity.timestamp = timetracking.get(i).timestamp;
                 }
             }
             return Response.ok(Timetracking.listAll()).build();
