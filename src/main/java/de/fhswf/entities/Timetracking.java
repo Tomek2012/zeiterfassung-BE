@@ -19,4 +19,6 @@ public class Timetracking extends PanacheEntity {
     public String description;
 
     public Date timestamp;
+
+    public String total;
 }

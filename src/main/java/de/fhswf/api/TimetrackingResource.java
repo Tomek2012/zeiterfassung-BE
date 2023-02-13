@@ -5,7 +5,7 @@ import io.quarkus.security.Authenticated;
 import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
-
+import services.TimetrackingService;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -13,12 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 @Path("/time")
@@ -28,55 +23,55 @@ public class TimetrackingResource {
     private static final Logger LOG = Logger.getLogger(TimetrackingResource.class);
 
     @Inject
+    TimetrackingService timetrackingService;
+
+    @Inject
     JsonWebToken jwt;
 
+
+    /**
+     * Hole alle Zeiterfassungen aus der DB - Abgleich Datum und UserId (aus dem Token)
+     */
     @GET
     @Path("{date}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllTimetrackings(@PathParam("date") String date) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        Date searchdate = formatter.parse(date);
-        String userId = jwt.getClaim(Claims.sub);
-        List<Timetracking> times = Timetracking.list("userId = ?1 and to_char(timestamp,'dd-MM-yyyy') = ?2", userId, date);
-        return Response.ok(times).build();
+
+        LOG.info("Enter: getAllTimetrackings()");
+        Response response = timetrackingService.getAllTimetrackings(date);
+        LOG.info("Leave: getAllTimetrackings()");
+
+        return response;
     }
 
+    /**
+     * Speicherung und Update aller Entities die vom Frontend uebergeben werden
+     */
     @POST
     @Path("/save")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveAndUpdate(List<Timetracking> timetracking) {
-        try {
-            for (int i = 0; i < timetracking.size();
-                 i++) {
-                if (timetracking.get(i).id == null) {
-                    timetracking.get(i).userId = jwt.getClaim(Claims.sub);
-                    Timetracking.persist(timetracking.get(i));
-                } else {
-                    Timetracking entity = Timetracking.findById(timetracking.get(i).id);
-                    entity.fromTime = timetracking.get(i).fromTime;
-                    entity.toTime = timetracking.get(i).toTime;
-                    entity.workingpackage = timetracking.get(i).workingpackage;
-                    entity.description = timetracking.get(i).description;
-                    entity.timestamp = timetracking.get(i).timestamp;
-                }
-            }
-            return Response.ok(Timetracking.listAll()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), e.getMessage()).build();
-        }
+
+        LOG.info("Enter: saveAndUpdate()");
+        Response response = timetrackingService.saveAndUpdate(timetracking);
+        LOG.info("Leave: saveAndUpdate()");
+
+        return response;
     }
 
+    /**
+     * Loesche Zeiterfassungen beziehungsweise dessen Entity
+     */
     @DELETE
-    @Transactional
     @Path("{id}")
     public Response deleteById(@PathParam("id") Long id) {
-        boolean deleted = Timetracking.deleteById(id);
-        if (deleted) {
-            return Response.noContent().build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST).build();
+
+        LOG.info("Enter: deleteById()");
+        Response response = timetrackingService.deleteById(id);
+        LOG.info("Leave: deleteById()");
+
+        return response;
     }
 
     // Nur zum Hinzufuegen neuer Zeiterfassungen (Testzwecke) - FE benutzt saveAndUpdate()

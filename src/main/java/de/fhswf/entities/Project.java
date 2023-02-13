@@ -1,4 +1,4 @@
 package de.fhswf.entities;
 
-public class project {
+public class Project {
 }
