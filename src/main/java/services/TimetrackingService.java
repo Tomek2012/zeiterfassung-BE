@@ -31,7 +31,7 @@ public class TimetrackingService {
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
             Date searchdate = formatter.parse(date);
             String userId = jwt.getClaim(Claims.sub);
-            List<Timetracking> times = Timetracking.list("userId = ?1 and to_char(timestamp,'dd-MM-yyyy') = ?2", userId, date);
+            List<Timetracking> times = Timetracking.list("userId = ?1 and to_char(timestamp,'dd-MM-yyyy') = ?2 order by fromTime", userId, date);
             TimetrackingResponse responseObject = new TimetrackingResponse();
             responseObject.total = calculateTotal(times);
             responseObject.timetrackings = times;
