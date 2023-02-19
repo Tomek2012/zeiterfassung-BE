@@ -53,7 +53,7 @@ public class TimetrackingService {
                     Timetracking entity = Timetracking.findById(timetracking.get(i).id);
                     entity.fromTime = timetracking.get(i).fromTime;
                     entity.toTime = timetracking.get(i).toTime;
-                    entity.workingpackage = timetracking.get(i).workingpackage;
+                    entity.project = timetracking.get(i).project;
                     entity.description = timetracking.get(i).description;
                     entity.timestamp = timetracking.get(i).timestamp;
                 }
@@ -81,7 +81,6 @@ public class TimetrackingService {
             Date to = formatter.parse(timetrackings.get(i).toTime);
 
             diff += to.getTime() - from.getTime();
-            LOG.info(diff);
         }
 
         return formatDiffFromMilliseconds(diff);

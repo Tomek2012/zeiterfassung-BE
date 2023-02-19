@@ -14,7 +14,7 @@ public class Timetracking extends PanacheEntity {
 
     public String toTime;
 
-    public String workingpackage;
+    public Long project;
 
     public String description;
 
